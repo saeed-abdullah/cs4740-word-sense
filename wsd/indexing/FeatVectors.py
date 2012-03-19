@@ -75,6 +75,10 @@ class FeatVectors:
         return " ".join(word_list[i-dist : i+dist])
 
     def map_coll(self, coll):
+        """
+        Takes the collocation string and maps the selected term to
+        indexed numbers that are unique for each word type
+        """
         words = coll.split()
         nums = []
 
