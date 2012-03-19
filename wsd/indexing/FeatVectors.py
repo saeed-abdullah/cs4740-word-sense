@@ -4,9 +4,6 @@ import WordMap
 
 class FeatVectors:
 
-    FILE = ""
-    word_map = None
-
     def __init__(self, inputfile = ""):
         self.word_map = WordMap.WordMap()
 
