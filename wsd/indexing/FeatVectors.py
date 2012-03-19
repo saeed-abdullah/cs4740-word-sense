@@ -99,7 +99,14 @@ class FeatVectors:
         return lines
 
     def dis_word(self, word):
-        
+        """
+        Looks for a specific word and extracts the lines that are associated
+        with that word and performs the mapping for each line that is 
+        found
+
+        Returns an array of dictionaries containing the sense information
+        for the given word
+        """
         wFile = self.find_word_lines(self.get_file(), word)
         wMap = self.map_file(wFile)
 
