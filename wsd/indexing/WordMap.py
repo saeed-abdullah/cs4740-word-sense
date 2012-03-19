@@ -5,10 +5,9 @@ class WordMap:
     Class for handling the collocations of words, by storing 
     and giving unique indexes to words added to it. 
     """
-    word_map = {}
-    last_index = 0
 
     def __init__(self):
+        self.word_map = {}
         self.last_index = 0
 
     def add(self, word):

@@ -87,7 +87,7 @@ class FeatVectors:
 
         return " ".join(nums)
 
-    def find_word_lines(self, inputfile, word):
+    def find_word_lines(self, word_input, word):
         """
         Finds all the lines in a given file object that start with 
         the supplied word returns a list containing those lines
@@ -96,7 +96,7 @@ class FeatVectors:
         """
         lines = []
 
-        for line in inputfile:
+        for line in word_input:
             if line.startswith(word):
                 lines.append(line)
 
