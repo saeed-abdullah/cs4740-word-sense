@@ -42,6 +42,25 @@ class Train {
     private Classifier classifier;
     private Instances trainInstances;
 
+    public Train(String trainFilePath, String outputPath)
+        throws Exception {
+        /*
+         * Performs the default tasks. It first created a classifier
+         * to train on the dataset and then the classifier is serialized
+         * to the given file.
+         * param
+         * ----
+         *  trainFilePath: Training file location.
+         *  outputPath: File path to which the classifier would be
+         *      serialized.
+         */
+
+        this.setDataInstances(trainFilePath);
+        this.buildClassifier();
+        this.saveClassifier(outputPath);
+    }
+
+
 
     public void setDataInstances(String filename) throws Exception {
         this.trainInstances = Util.getData(filename);
@@ -101,6 +120,23 @@ class Evaluate {
     private Classifier classifier;
     private Instances testInstances;
 
+    public Evaluate(String serializedOutput, String testFilePath,
+            String outputPath) throws Exception {
+        /*
+         * Performs default tasks. It deserializes the classifier
+         * then write the evaluation data to the file.
+         * param
+         * ----
+         *  serializedOutput: File path of the serialized output.
+         *  testFilePath: Location of test data.
+         *  outputPath: Output file location.
+         */
+
+        this.setSerializedClassifier(serializedOutput);
+        this.setDataInstances(testFilePath);
+        this.evaluateData(outputPath);
+    }
+
     public void setSerializedClassifier(String serializedOutput)
         throws Exception {
 
@@ -145,6 +181,27 @@ class Evaluate {
             if (outputStream != null) {
                 outputStream.close();
             }
+        }
+    }
+}
+
+public class Learn {
+    public static void main(String args[]) throws Exception {
+        String train = "train";
+        String test = "test";
+        if (args[0].equals(train)) {
+            /* Performs training.
+             * First param is the input source and the second param
+             * is the serialization output path.
+             */
+            new Train(args[1], args[2]);
+        } else if (args[0].equals(test)) {
+            /* Evaluates the test data.
+             * First param is the serialized classifier, second param
+             * denotes data location and the third param is the output
+             * path.
+             */
+            new Evaluate(args[1], args[2], args[3]);
         }
     }
 }
