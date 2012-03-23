@@ -62,46 +62,36 @@ def write_arff_header(fout, feature_count, class_count, comment, relation):
     fout.write("@DATA\n")
 
 
-def convert_index_line(fout, line, word_mapping):
+def convert_index_line(fout, line):
     """Converts index data to feature vectors.
 
     Each feature in the index data is seperated by whitespaces and the
-    last token denotes the class variable. This function converts the
-    index data line to feature vector and writes the result in fout.
+    last token denotes the class variable. As the word feature are
+    already converted into numeric features, this function essentially
+    changes comma as a delimiter instead of spaces.
 
     param
     ----
     fout: Output file objec.
     line: Index data, each feature is seperated by whitespaces and
         the class variable is the last token.
-    word_mapping: The mapping of word to numeric symbol, see WordMap.py
     for more details.
     """
 
     l = line.split()
 
-    class_id = l[-1]
-    numeric_data = []
 
-    for feature in l[:-1]:
-        numeric_data.append(str(word_mapping.get(feature)))
-
-    fout.write(", ".join(numeric_data))
-    fout.write(', ')
-    fout.write(class_id)
+    fout.write(", ".join(l))
     fout.write("\n")
 
 
-def convert_index_file_to_arff(fin, fout, word_mapper, 
-        comment='', relation='wsd'):
+def convert_index_file_to_arff(fin, fout, comment='', relation='wsd'):
     """Converts index data to ARFF format.
 
     param
     ----
     fin: Input file name.
     fout: Output filename.
-    word_mapper: Word mapper to convert string features to numeric ones,
-        see WordMap.py for more details.
     comment: Comment to be used in the header.
     relation: Relation name.
     """
@@ -120,6 +110,6 @@ def convert_index_file_to_arff(fin, fout, word_mapper,
             feature_count=feature_count, class_count=class_count)
 
         for line in data_lines:
-            convert_index_line(f, line, word_mapper)
+            convert_index_line(f, line)
 
 

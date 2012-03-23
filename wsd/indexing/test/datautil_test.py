@@ -54,24 +54,14 @@ class DataUtilTest(unittest2.TestCase):
     def test_convert_index_line(self):
         m = mock_open()
 
-        mock_word_mapping = mock.Mock()
-        mock_word_mapping.get.return_value = 42
+        line = '41 42 2'
 
-        line = 'f1 f2 2'
+        datautil.convert_index_line(m, line)
 
-        datautil.convert_index_line(m, line, mock_word_mapping)
-
-        expected_output_calls = [mock.call.write('42, 42'),
-                mock.call.write(', '),
-                mock.call.write('2'),
+        expected_output_calls = [mock.call.write('41, 42, 2'),
                 mock.call.write('\n')]
 
-        expected_word_mapping_calls = [mock.call.get('f1'),
-                mock.call.get('f2')]
-
         self.assertListEqual(m.mock_calls, expected_output_calls)
-        self.assertListEqual(mock_word_mapping.mock_calls, 
-                expected_word_mapping_calls)
 
 
     def test_convert_index_file_to_arff(self):
@@ -82,8 +72,8 @@ class DataUtilTest(unittest2.TestCase):
         2
 
         # Data
-        A B 1
-        B C 2
+        1 2 1
+        2 3 2
         """
 
         expected_output ="""% 
@@ -103,17 +93,10 @@ class DataUtilTest(unittest2.TestCase):
         fin = "/tmp/datautil.1.fin.txt"
         fout = "/tmp/datautil.1.fout.txt"
 
-        from .. import WordMap
-
-        mapper = WordMap.WordMap()
-        mapper.add("A")
-        mapper.add("B")
-        mapper.add("C")
-
         with open(fin, "w") as f:
             f.write(lines)
 
-        datautil.convert_index_file_to_arff(fin, fout, mapper)
+        datautil.convert_index_file_to_arff(fin, fout)
 
         with open(fout) as f:
             expected_lines = expected_output.split("\n")
