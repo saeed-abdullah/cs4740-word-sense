@@ -29,8 +29,28 @@ class Util {
             data.setClassIndex(data.numAttributes() - 1);
 
         return data;
+    }
 
-
+    public static void formatOutputToKaggle(PrintWriter writer, int numberOfClass,
+            int classifierOutput) {
+        /**
+         * Formats the classifier output to kaggle format.
+         *
+         * For k possible classes, there should be k + 1 lines where the first
+         * line is always zero and predicted word-sense class is set to zero.
+         *
+         * params
+         * ----
+         *  writer: PrintWriter instance.
+         *  numberOfClass: Total number of classes.
+         *  classifierOutput: The nominal class predicted by the classifier.
+         */
+        for(int i = 0; i <= numberOfClass; i++) {
+            if (i != classifierOutput)
+                writer.println("0");
+            else
+                writer.println("1");
+        }
     }
 }
 
@@ -174,7 +194,8 @@ class Evaluate {
                 double classLabel = this.classifier.classifyInstance(
                         this.testInstances.instance(i));
 
-                outputStream.println(classLabel);
+                Util.formatOutputToKaggle(outputStream,
+                        this.testInstances.numClasses(), (int) classLabel);
             }
 
         } finally {
