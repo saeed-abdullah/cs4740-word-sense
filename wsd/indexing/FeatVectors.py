@@ -5,9 +5,11 @@ import re
 class FeatVectors:
 
     def __init__(self, inputfile):
+        self.pklfile = inputfile
+
         try:
             self.word_map = pickle.load(open(inputfile))
-        except EOFError:
+        except:
             self.word_map = WordMap.WordMap()
 
     def open_file(self, file_name):
@@ -16,11 +18,14 @@ class FeatVectors:
     def get_file(self):
         return self.FILE
 
-    def write_map(self, pkl_file):
+    def write_map(self, pkl_file = None):
         """
         Writes the current wordmap to a pickle file for future use.
         Needs to have a pickle file available to it
         """
+	if pkl_file == None:
+	    pkl_file = self.pklfile
+
         pickle.dump(self.word_map, open(pkl_file, "w"))
 
     def map_file(self, file_lines):
@@ -226,7 +231,6 @@ class FeatVectors:
         
         self.write_map()
 
-
     def format_headers(self, feature_count, class_count):
         """
         Formats the headers of the list to be written to the output
@@ -301,10 +305,15 @@ class FeatVectors:
 
     def create_stop_words(self, file_map):
         """
-        Takes a file map list object and creates stop words from the word
-        frequency. Stop words are those whose term frequency is greater than
-        0.4% (1/230) of the entire document. The constant 230 was chosen
-        by manually trying out on the given training data set for the project.
+        Takes a file map list object and creates stop words according to
+	Zipf's law: F(rank) ~ 0.1 / rank. Given a threshold F(rank), any word
+	satisfying F(rank_word) >= F(rank) will be considered as a stop word.
+	For the frequency, the program uses IDF because it is proved to
+	outperform when other frequencies such as TF are used. The threshold
+        frequency F(rank) is defined as log(2/3) from our experiments on the
+	given training data. Since F(r) = log(num_of_documents_the_word_appears 
+	/ total_num_of_documents), for simplicity, we compare the following:
+	    num_of_documents_the_word_appears >= threshold = tot_num_of_doc*2/3
 
         returns a hashtable whose keys are stop words
 
@@ -315,24 +324,27 @@ class FeatVectors:
             should containt at least the key 'context' whose value is a string
         """
         word_counts = {}
-        doc_size = 0
+        doc_count = 0.0
 
         for line_map in file_map:
+            doc_count = doc_count + 1.0
             context = line_map['context']
             word_list = context.strip().lower().split(' ')
+	    vocab = {}
             for word in word_list:
-                if word_counts.has_key(word):
-                    word_counts[word] = word_counts[word] + 1
-                else:
-                    word_counts[word] = 1
-            doc_size = doc_size + 1
+                if not vocab.has_key(word):
+		    if word_counts.has_key(word):
+                        word_counts[word] = word_counts[word] + 1.0
+                    else:
+                        word_counts[word] = 1.0
+	        vocab[word] = 1
 
         stop_words = {}
         words = word_counts.keys()
-        sigma = doc_size / 230
+        sigma = doc_count * 2.0 / 3.0
 
         for word in words:
-            if float(word_counts[word]) >= sigma:
+            if word_counts[word] >= sigma:
                 stop_words[word] = 1
 
         return stop_words
