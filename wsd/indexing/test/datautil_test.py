@@ -87,9 +87,6 @@ class DataUtilTest(unittest2.TestCase):
         2, 3, 2
         """
 
-
-
-
         fin = "/tmp/datautil.1.fin.txt"
         fout = "/tmp/datautil.1.fout.txt"
 
