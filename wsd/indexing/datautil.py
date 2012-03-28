@@ -113,3 +113,90 @@ def convert_index_file_to_arff(fin, fout, comment='', relation='wsd'):
             convert_index_line(f, line)
 
 
+def generate_run_script(train_dir, test_dir, model_dir, evaluation_dir,
+        script_filepath, java_command="java -cp .:weka.jar Learn",
+        classifier_command=None):
+    """Generates run script to train and test classifiers.
+
+    This function writes a script file which contains two lines per arff test
+    files to train a classifier over data in the train directory.
+
+    So, given that there is a file named 'begin.v.arff' in the test directory,
+    it will look for file with same name in the train directory to train
+    a model given the classifier command. It will save the model in
+    the model_dir and the output in kaggle format is saved to
+    evaluation_dir.
+
+    param
+    ----
+    train_dir: Directory containing training arff files.
+    test_dir: Directory containing test arff files.
+    model_dir: Directory to write serialized models.
+    evaluation_dir: Directory to write evaluation output.
+    script_filepath: File path of the script.
+    java_command: The java command to run the classifier --- it should contain
+        the lib locations and the class name.
+    classifier_command: The classifier names and the options to pass to the
+        java program.
+    """
+
+    train_string = "{0} -J train -F {1} -S {2} -C {3}"
+    test_string = "{0} -J test -F {1} -S {2} -E {3}"
+
+    import glob
+    import os
+
+    arff_file_wildcard = "*.arff"
+
+    with open(script_filepath, "w") as f:
+        # List all the arff files in the test directory.
+        for test_file in glob.iglob(os.path.join(test_dir,
+                arff_file_wildcard)):
+
+            # Get the filename.
+            arff_file_name = os.path.split(test_file)[1]
+
+            train_file_path = os.path.join(train_dir, arff_file_name)
+            model_file_path = os.path.join(model_dir, 
+                    arff_file_name + ".model")
+            evaluation_file_path = os.path.join(evaluation_dir,
+                    arff_file_name + ".output")
+
+            # Make sure that the train file for corresponding word
+            # exists.
+            if os.path.exists(train_file_path):
+                train_command = train_string.format(java_command,
+                        train_file_path, model_file_path,
+                        classifier_command)
+
+                test_command = test_string.format(java_command,
+                        test_file, model_file_path, evaluation_file_path)
+
+                # Write train command.
+                f.write(train_command)
+                f.write("\n")
+
+                # Write test command.
+                f.write(test_command)
+                f.write("\n")
+
+            else:
+                print "No training file: " + train_file_path
+
+
+if __name__ == "__main__":
+    train_dir = "train_arffs/"
+    test_dir = "test_arffs/"
+    model_dir = "model/"
+    evaluation_dir = "evaluate/"
+    run_script = "run_script.sh"
+
+    java_command = "java -cp .:lib/weka.jar Learn"
+    classifier_command = "weka.classifiers.functions.SMO " +\
+        "-C 2.0 -L 0.0010 -P 1.0E-12 -N 0 -V -1 -W 1 -K " +\
+        '"weka.classifiers.functions.supportVector.RBFKernel -C ' +\
+        '250007 -G 0.0"'
+
+    generate_run_script(train_dir, test_dir, model_dir,
+            evaluation_dir, run_script, java_command, classifier_command)
+
