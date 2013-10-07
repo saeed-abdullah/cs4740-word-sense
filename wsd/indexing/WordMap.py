@@ -13,6 +13,8 @@ class WordMap:
     def add(self, word):
         """
         Adds a word to the map and returns its unique index
+
+        param word: String word to be added to the index
         """
         word = self.prepare(word)
 
@@ -26,6 +28,8 @@ class WordMap:
     def get(self, word):
         """
         Returns the unique index of the supplied word
+
+        param word: string word to look for in the index
         """
         word = self.prepare(word)
         return self.word_map[word] if word in self.word_map else self.add(word)

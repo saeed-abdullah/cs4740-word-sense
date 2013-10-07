@@ -157,8 +157,8 @@ class Train {
          *  options: String options to be used.
          *
          */
-
-        classifier.setOptions(weka.core.Utils.splitOptions(options));
+        
+        ((J48) classifier).setOptions(weka.core.Utils.splitOptions(options));
         classifier.buildClassifier(this.trainInstances);
         this.classifier = classifier;
     }
